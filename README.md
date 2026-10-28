@@ -30,7 +30,100 @@ STEP-8: Repeat the above steps to generate the entire cipher text.
 
 
 ## PROGRAM
+```
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 
+#define MAX_LEN 1024
+
+// Validates that the key contains only alphabetic characters
+int is_valid_key(const char *key) {
+    if (strlen(key) == 0) return 0;
+    for (size_t i = 0; key[i] != '\0'; i++) {
+        if (!isalpha((unsigned char)key[i])) return 0;
+    }
+    return 1;
+}
+
+// Strips newline character left by fgets
+void strip_newline(char *str) {
+    size_t len = strlen(str);
+    if (len > 0 && str[len - 1] == '\n') {
+        str[len - 1] = '\0';
+    }
+}
+
+void vigenere(char *text, const char *key, int encrypt) {
+    size_t key_len = strlen(key);
+    size_t key_idx = 0;
+    int direction = encrypt ? 1 : -1;
+
+    for (size_t i = 0; text[i] != '\0'; i++) {
+        if (isalpha((unsigned char)text[i])) {
+            char base = isupper((unsigned char)text[i]) ? 'A' : 'a';
+            int shift = toupper((unsigned char)key[key_idx % key_len]) - 'A';
+
+            int offset = (text[i] - base) + (direction * shift);
+            text[i] = base + ((offset % 26 + 26) % 26);
+
+            key_idx++;
+        }
+    }
+}
+
+int main(void) {
+    char text[MAX_LEN];
+    char key[MAX_LEN];
+    char mode_input[10];
+    int encrypt = 1;
+
+    printf("=== Vigenère Cipher ===\n");
+
+    // Input text
+    printf("Enter your text: ");
+    if (fgets(text, sizeof(text), stdin) == NULL) return 1;
+    strip_newline(text);
+
+    // Input key
+    while (1) {
+        printf("Enter key (letters only): ");
+        if (fgets(key, sizeof(key), stdin) == NULL) return 1;
+        strip_newline(key);
+
+        if (is_valid_key(key)) break;
+        printf("Invalid key! Only alphabetic characters allowed.\n");
+    }
+
+    // Input operation
+    while (1) {
+        printf("Do you want to (E)ncrypt or (D)ecrypt? ");
+        if (fgets(mode_input, sizeof(mode_input), stdin) == NULL) return 1;
+        strip_newline(mode_input);
+
+        char c = tolower((unsigned char)mode_input[0]);
+        if (c == 'e') {
+            encrypt = 1;
+            break;
+        } else if (c == 'd') {
+            encrypt = 0;
+            break;
+        }
+        printf("Invalid choice. Enter 'E' or 'D'.\n");
+    }
+
+    // Process in-place
+    vigenere(text, key, encrypt);
+
+    printf("\nResult (%sed): %s\n", encrypt ? "encrypt" : "decrypt", text);
+
+    return 0;
+}
+```
 ## OUTPUT
+<img width="390" height="142" alt="image" src="https://github.com/user-attachments/assets/af5ca4c3-6b52-4101-b84e-25a8ec2386f5" />
 
 ## RESULT
+
+Thus the program for vigenere cipher is successfully implemented using C program.
